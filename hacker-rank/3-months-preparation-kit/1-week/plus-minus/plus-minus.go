@@ -9,38 +9,29 @@ import (
 	"strings"
 )
 
-/*
- * Complete the 'plusMinus' function below.
- *
- * The function accepts INTEGER_ARRAY arr as parameter.
- */
-
 func plusMinus(arr []int32) {
-	// Write your code here
 	positiveRatio := 0
 	negativeRatio := 0
 	zeroRatio := 0
 
 	for i := 0; i < len(arr); i++ {
-		if int(arr[i]) > 0 {
+		if arr[i] > 0 {
 			positiveRatio += 1
-		}
-		if int(arr[i]) < 0 {
+		} else if arr[i] < 0 {
 			negativeRatio += 1
-		}
-		if int(arr[i]) == 0 {
+		} else {
 			zeroRatio += 1
 		}
+
 	}
 
-	positive := float32(positiveRatio / len(arr))
-	negative := float32(negativeRatio / len(arr))
-	zero := float32(zeroRatio / len(arr))
+	positive := float32(positiveRatio) / float32(len(arr))
+	negative := float32(negativeRatio) / float32(len(arr))
+	zero := float32(zeroRatio) / float32(len(arr))
 
-	fmt.Printf("%.6f", positive)
-	fmt.Printf("%.6f", negative)
-	fmt.Printf("%.6f", zero)
-
+	fmt.Printf("%.6f\n", positive)
+	fmt.Printf("%.6f\n", negative)
+	fmt.Printf("%.6f\n", zero)
 }
 
 func main() {
