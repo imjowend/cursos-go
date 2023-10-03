@@ -8,7 +8,9 @@ import (
 
 func timeConversion(s string) string {
 	// Write your code here
-
+	fmt.Println(s)
+	fmt.Println("s 0: ", s[0])
+	fmt.Println("s 1: ", s[1])
 	var hour24 string
 	if strings.Contains(s, "PM") {
 		if !(s[0] == 1 && s[1] == 2) {
@@ -72,7 +74,7 @@ func timeConversion(s string) string {
 
 func main() {
 
-	result := timeConversion("12:01:01PM")
+	result := timeConversion("12:01:01AM")
 
 	fmt.Println(result)
 
