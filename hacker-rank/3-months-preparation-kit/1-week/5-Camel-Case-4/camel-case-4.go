@@ -19,12 +19,24 @@ func main() {
 		partsOfTest := strings.Split(test, ";")
 		for i, part := range partsOfTest {
 			//The first part must contains (S or C)
-			if part == "S" {
-
-			} else {
-
+			if i == 1 {
+				if part == "S" {
+					//Split
+				} else {
+					//Concatenate
+				}
 			}
-			//
+			if i == 2 {
+				if part == "M" {
+					//Method
+				}
+				if part == "V" {
+					//Variable
+				}
+				if part == "C" {
+					//Class
+				}
+			}
 			fmt.Println("Part N°"+strconv.Itoa(i)+"\n part: ", part)
 		}
 
