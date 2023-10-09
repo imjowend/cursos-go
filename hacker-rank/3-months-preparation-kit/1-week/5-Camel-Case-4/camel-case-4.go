@@ -23,7 +23,7 @@ func main() {
 				if part == "S" {
 					//Split
 				} else {
-					//Concatenate
+					//Combinatex
 				}
 			}
 			if i == 2 {
