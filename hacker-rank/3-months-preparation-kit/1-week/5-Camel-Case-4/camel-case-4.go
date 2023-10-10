@@ -37,6 +37,7 @@ func main() {
 					//Class
 				}
 			}
+			// At the step 3 we need to use split or concatenate
 			fmt.Println("Part N°"+strconv.Itoa(i)+"\n part: ", part)
 		}
 
