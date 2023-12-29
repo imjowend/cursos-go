@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"database/sql"
+	"log"
 
 	"github.com/imjowend/cursos-go/curso-go-rest-web-sockets/models"
 )
@@ -25,6 +26,31 @@ func (repository *PostgresRepository) InsertUser(ctx context.Context, user *mode
 	return err
 }
 
-func (repository *PostgresRepository) GetUserById(ctx context.Context, id int64) {
+func (repository *PostgresRepository) GetUserById(ctx context.Context, id int64) (*models.User, error) {
+	rows, err := repository.db.QueryContext(ctx, "SELECT id, email FROM users WHERE id = $1", id)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		err = rows.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
 
+	var user = models.User{}
+
+	for rows.Next() {
+		if err = rows.Scan(&user.Id, &user.Email); err == nil {
+			return &user, nil
+		}
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
+func (repository *PostgresRepository) Close() error {
+	return repository.db.Close()
 }
