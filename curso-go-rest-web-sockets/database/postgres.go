@@ -27,7 +27,7 @@ func (repository *PostgresRepository) InsertUser(ctx context.Context, user *mode
 	return err
 }
 
-func (repository *PostgresRepository) GetUserById(ctx context.Context, id int64) (*models.User, error) {
+func (repository *PostgresRepository) GetUserById(ctx context.Context, id string) (*models.User, error) {
 	rows, err := repository.db.QueryContext(ctx, "SELECT id, email FROM users WHERE id = $1", id)
 	if err != nil {
 		return nil, err
