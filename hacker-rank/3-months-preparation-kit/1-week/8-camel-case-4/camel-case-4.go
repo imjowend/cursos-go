@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"strings"
+	"unicode"
 )
 
 const (
@@ -33,7 +34,7 @@ func camelCase4(s string) string {
 	} else {
 		res = combinateString(strWord)
 	}
-
+	fmt.Println(s)
 	if strTypeString == "M" {
 		res = methodString(strWord)
 	} else if strTypeString == "C" {
@@ -47,10 +48,28 @@ func camelCase4(s string) string {
 
 func separateString(s string) string {
 	fmt.Println(s)
-	replacer := strings.NewReplacer("[^a-zA-Z]", "")
-	newStr := replacer.Replace(s)
-	fmt.Println(newStr)
-	return newStr
+
+	var words []string
+	newStrClean := ""
+	delimiter := 0
+	for i, char := range s {
+		//Primero los junto
+		if unicode.IsLetter(char) {
+			newStrClean += string(char)
+		}
+		if i > 0 && unicode.IsUpper(char) {
+			word := newStrClean[delimiter:i]
+			words = append(words, word)
+			delimiter = i
+		}
+	}
+
+	word := newStrClean[delimiter:]
+	words = append(words, word)
+
+	capsWords := strings.Join(words, " ")
+	strClean := strings.ToLower(capsWords)
+	return strClean
 }
 
 func combinateString(s string) string {
