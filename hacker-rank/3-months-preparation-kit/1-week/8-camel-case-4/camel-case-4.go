@@ -46,8 +46,10 @@ func camelCase4(s string) string {
 }
 
 func separateString(s string) string {
+	fmt.Println(s)
 	replacer := strings.NewReplacer("[^a-zA-Z]", "")
 	newStr := replacer.Replace(s)
+	fmt.Println(newStr)
 	return newStr
 }
 
