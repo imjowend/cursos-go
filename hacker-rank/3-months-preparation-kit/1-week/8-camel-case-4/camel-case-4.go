@@ -73,11 +73,20 @@ func separateString(s string) string {
 }
 
 func combinateString(s string) string {
-	return s
+
+	newStrClean := strings.ReplaceAll(s, " ", "")
+	return newStrClean
 }
 
 func methodString(s string) string {
-	return s
+	var res string
+	for i, v := range s {
+		if unicode.IsUpper(v) && i == 0 {
+			res += strings.ToLower(string(v))
+		}
+		res += string(v)
+	}
+	return res
 }
 
 func classString(s string) string {
