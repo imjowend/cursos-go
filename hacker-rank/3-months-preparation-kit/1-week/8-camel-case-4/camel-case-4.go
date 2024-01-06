@@ -7,10 +7,15 @@ import (
 )
 
 const (
-	semicolon  = ";"
-	operation  = 0
-	typeString = 1
-	word       = 2
+	semicolon   = ";"
+	operation   = 0
+	typeString  = 1
+	word        = 2
+	parentheses = "()"
+	emptyString = ""
+	separate    = "S"
+	method      = "M"
+	class       = "C"
 )
 
 func main() {
@@ -34,7 +39,7 @@ func camelCase4(s string) string {
 	strWord := stringProps[word]
 	var capsPosition []int
 	var res string
-	if strOperation == "S" {
+	if strOperation == separate {
 		res = separateString(strWord)
 		return res
 	} else {
@@ -45,9 +50,9 @@ func camelCase4(s string) string {
 	for i := 0; i < len(capsPosition); i++ {
 		newCapsPosition = append(newCapsPosition, (capsPosition[i] - i))
 	}
-	if strTypeString == "M" {
+	if strTypeString == method {
 		res = methodString(res, newCapsPosition)
-	} else if strTypeString == "C" {
+	} else if strTypeString == class {
 		res = classString(res, newCapsPosition)
 	} else {
 		res = variableString(res, newCapsPosition)
@@ -82,7 +87,7 @@ func separateString(s string) string {
 
 func combinateString(s string) (string, []int) {
 
-	newStrClean := ""
+	newStrClean := emptyString
 	var capsPosition []int
 
 	for i, char := range s {
@@ -99,7 +104,7 @@ func combinateString(s string) (string, []int) {
 }
 
 func methodString(s string, pos []int) string {
-	newStrClean := ""
+	newStrClean := emptyString
 	for i, char := range s {
 		var capLetter string
 		letter := string(char)
@@ -113,11 +118,11 @@ func methodString(s string, pos []int) string {
 		newStrClean += letter
 	}
 
-	return newStrClean + "()"
+	return newStrClean + parentheses
 }
 
 func classString(s string, pos []int) string {
-	newStrClean := ""
+	newStrClean := emptyString
 	for i, char := range s {
 		var capLetter string
 		letter := string(char)
@@ -138,7 +143,7 @@ func classString(s string, pos []int) string {
 }
 
 func variableString(s string, pos []int) string {
-	newStrClean := ""
+	newStrClean := emptyString
 	for i, char := range s {
 		var capLetter string
 		letter := string(char)
@@ -154,3 +159,164 @@ func variableString(s string, pos []int) string {
 
 	return newStrClean
 }
+
+/*
+package main
+
+import (
+   "bufio"
+   "fmt"
+   "os"
+   "strings"
+   "unicode"
+)
+
+const (
+    semicolon   = ";"
+    operation   = 0
+    typeString  = 1
+    word        = 2
+    parentheses = "()"
+    emptyString = ""
+    separate    = "S"
+    method      = "M"
+    class       = "C"
+)
+
+func main() {
+   scanner := bufio.NewScanner(os.Stdin)
+
+   for scanner.Scan() {
+       line := scanner.Text()
+       stringProps := strings.Split(line, semicolon)
+
+       strOperation := stringProps[operation]
+        strTypeString := stringProps[typeString]
+        strWord := stringProps[word]
+        var capsPosition []int
+        var res string
+        if strOperation == separate {
+            res = separateString(strWord)
+            fmt.Println(res)
+            continue
+        } else {
+            res, capsPosition = combinateString(strWord)
+        }
+        var newCapsPosition []int
+
+        for i := 0; i < len(capsPosition); i++ {
+            newCapsPosition = append(newCapsPosition, (capsPosition[i] - i))
+        }
+        if strTypeString == method {
+            res = methodString(res, newCapsPosition)
+        } else if strTypeString == class {
+            res = classString(res, newCapsPosition)
+        } else {
+            res = variableString(res, newCapsPosition)
+        }
+
+        fmt.Println(res)
+    }
+}
+
+func separateString(s string) string {
+    var words []string
+    newStrClean := ""
+    delimiter := 0
+    for i, char := range s {
+        //Primero los junto
+        if unicode.IsLetter(char) {
+            newStrClean += string(char)
+        }
+        if i > 0 && unicode.IsUpper(char) {
+            word := newStrClean[delimiter:i]
+            words = append(words, word)
+            delimiter = i
+        }
+    }
+
+    word := newStrClean[delimiter:]
+    words = append(words, word)
+
+    capsWords := strings.Join(words, " ")
+    strClean := strings.ToLower(capsWords)
+    return strClean
+}
+
+func combinateString(s string) (string, []int) {
+
+    newStrClean := emptyString
+    var capsPosition []int
+
+    for i, char := range s {
+        //Primero los junto
+        if unicode.IsLetter(char) {
+            newStrClean += string(char)
+        }
+        if unicode.IsSpace(char) {
+            capsPosition = append(capsPosition, i)
+        }
+    }
+    //newStrClean := strings.ReplaceAll(s, " ", "")
+    return newStrClean, capsPosition
+}
+
+func methodString(s string, pos []int) string {
+    newStrClean := emptyString
+    for i, char := range s {
+        var capLetter string
+        letter := string(char)
+        for j := 0; j < len(pos); j++ {
+
+            if i == pos[j] {
+                capLetter = strings.ToUpper(string(char))
+                letter = capLetter
+            }
+        }
+        newStrClean += letter
+    }
+
+    return newStrClean + parentheses
+}
+
+func classString(s string, pos []int) string {
+    newStrClean := emptyString
+    for i, char := range s {
+        var capLetter string
+        letter := string(char)
+        if i == 0 {
+            letter = strings.ToUpper(string(char))
+        }
+        for j := 0; j < len(pos); j++ {
+
+            if i == pos[j] {
+                capLetter = strings.ToUpper(string(char))
+                letter = capLetter
+            }
+        }
+        newStrClean += letter
+    }
+
+    return newStrClean
+}
+
+func variableString(s string, pos []int) string {
+    newStrClean := emptyString
+    for i, char := range s {
+        var capLetter string
+        letter := string(char)
+        for j := 0; j < len(pos); j++ {
+
+            if i == pos[j] {
+                capLetter = strings.ToUpper(string(char))
+                letter = capLetter
+            }
+        }
+        newStrClean += letter
+    }
+
+    return newStrClean
+}
+
+
+*/
