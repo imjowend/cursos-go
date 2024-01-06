@@ -20,6 +20,11 @@ func main() {
 	fmt.Println(camelCase4("S;C;LargeSoftwareBook"))
 	fmt.Println(camelCase4("C;M;white sheet of paper"))
 	fmt.Println(camelCase4("S;V;pictureFrame"))
+	fmt.Println(camelCase4("S;V;iPad"))
+	fmt.Println(camelCase4("C;M;mouse pad"))
+	fmt.Println(camelCase4("C;C;code swarm"))
+	fmt.Println(camelCase4("S;C;OrangeHighlighter"))
+
 }
 
 func camelCase4(s string) string {
