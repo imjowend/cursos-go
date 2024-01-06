@@ -27,28 +27,31 @@ func camelCase4(s string) string {
 	strOperation := stringProps[operation]
 	strTypeString := stringProps[typeString]
 	strWord := stringProps[word]
+	var capsPosition []int
 	var res string
 	if strOperation == "S" {
 		res = separateString(strWord)
 		return res
 	} else {
-		res = combinateString(strWord)
+		res, capsPosition = combinateString(strWord)
 	}
-	fmt.Println(s)
+	var newCapsPosition []int
+
+	for i := 0; i < len(capsPosition); i++ {
+		newCapsPosition = append(newCapsPosition, (capsPosition[i] - i))
+	}
 	if strTypeString == "M" {
-		res = methodString(strWord)
+		res = methodString(res, newCapsPosition)
 	} else if strTypeString == "C" {
-		res = classString(strWord)
+		res = classString(res, newCapsPosition)
 	} else {
-		res = variableString(strWord)
+		res = variableString(res, newCapsPosition)
 	}
 
 	return res
 }
 
 func separateString(s string) string {
-	fmt.Println(s)
-
 	var words []string
 	newStrClean := ""
 	delimiter := 0
@@ -72,27 +75,77 @@ func separateString(s string) string {
 	return strClean
 }
 
-func combinateString(s string) string {
+func combinateString(s string) (string, []int) {
 
-	newStrClean := strings.ReplaceAll(s, " ", "")
+	newStrClean := ""
+	var capsPosition []int
+
+	for i, char := range s {
+		//Primero los junto
+		if unicode.IsLetter(char) {
+			newStrClean += string(char)
+		}
+		if unicode.IsSpace(char) {
+			capsPosition = append(capsPosition, i)
+		}
+	}
+	//newStrClean := strings.ReplaceAll(s, " ", "")
+	return newStrClean, capsPosition
+}
+
+func methodString(s string, pos []int) string {
+	newStrClean := ""
+	for i, char := range s {
+		var capLetter string
+		letter := string(char)
+		for j := 0; j < len(pos); j++ {
+
+			if i == pos[j] {
+				capLetter = strings.ToUpper(string(char))
+				letter = capLetter
+			}
+		}
+		newStrClean += letter
+	}
+
+	return newStrClean + "()"
+}
+
+func classString(s string, pos []int) string {
+	newStrClean := ""
+	for i, char := range s {
+		var capLetter string
+		letter := string(char)
+		if i == 0 {
+			letter = strings.ToUpper(string(char))
+		}
+		for j := 0; j < len(pos); j++ {
+
+			if i == pos[j] {
+				capLetter = strings.ToUpper(string(char))
+				letter = capLetter
+			}
+		}
+		newStrClean += letter
+	}
+
 	return newStrClean
 }
 
-func methodString(s string) string {
-	var res string
-	for i, v := range s {
-		if unicode.IsUpper(v) && i == 0 {
-			res += strings.ToLower(string(v))
+func variableString(s string, pos []int) string {
+	newStrClean := ""
+	for i, char := range s {
+		var capLetter string
+		letter := string(char)
+		for j := 0; j < len(pos); j++ {
+
+			if i == pos[j] {
+				capLetter = strings.ToUpper(string(char))
+				letter = capLetter
+			}
 		}
-		res += string(v)
+		newStrClean += letter
 	}
-	return res
-}
 
-func classString(s string) string {
-	return s
-}
-
-func variableString(s string) string {
-	return s
+	return newStrClean
 }
