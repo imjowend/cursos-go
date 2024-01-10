@@ -48,3 +48,7 @@ func completeZeros(str string) string {
 
 	return newstr + str
 }
+
+// func flippingBits(n int64) int64 {
+// 	return n ^ 0xFFFFFFFF
+// }
