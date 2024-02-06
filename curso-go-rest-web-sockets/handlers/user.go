@@ -3,14 +3,20 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 
+	"github.com/golang-jwt/jwt"
 	"github.com/imjowend/cursos-go/curso-go-rest-web-sockets/models"
 	"github.com/imjowend/cursos-go/curso-go-rest-web-sockets/repository"
 	"github.com/imjowend/cursos-go/curso-go-rest-web-sockets/server"
 	"github.com/segmentio/ksuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
-type SignUpRequest struct {
+const HASH_COST = 8
+
+// Ya que este Struct sirve para Autenticacion como para Registro, cambiaremos el nombre a "SignUpLoginRequest"
+type SignUpLoginRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
@@ -20,15 +26,26 @@ type SignUpResponse struct {
 	Email string `json:"email"`
 }
 
+type LoginResponse struct {
+	Token string `json:"token"`
+}
+
 func SignUpHandler(s server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var request = SignUpRequest{}
+		var request = SignUpLoginRequest{}
 		// Aca primero el handler decodifica el cuerpo de la Request (r) y lo mete en request
 		err := json.NewDecoder(r.Body).Decode(&request)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
+
+		// Hacemos un hash para que el Password se envie de manera encriptada a  la Base de Datos
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(request.Password), HASH_COST)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+
 		// Luego genera una id random
 		id, err := ksuid.NewRandom()
 		if err != nil {
@@ -37,8 +54,9 @@ func SignUpHandler(s server.Server) http.HandlerFunc {
 		}
 		// crea una variable user de tipo models.User y le mete el mail y contra de la Request y la id generada
 		var user = models.User{
-			Email:    request.Email,
-			Password: request.Password,
+			Email: request.Email,
+			//  Almacenamos la Password con Hash en el User
+			Password: string(hashedPassword),
 			Id:       id.String(),
 		}
 		// Verifica si hay un error con el metodo "Insert User" de la bd donde se este consultando
@@ -52,6 +70,45 @@ func SignUpHandler(s server.Server) http.HandlerFunc {
 		json.NewEncoder(w).Encode(SignUpResponse{
 			Id:    user.Id,
 			Email: user.Email,
+		})
+	}
+}
+
+func LoginHandler(s server.Server) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var request = SignUpLoginRequest{}
+		err := json.NewDecoder(r.Body).Decode(&request)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		user, err := repository.GetUserByEmail(r.Context(), request.Email)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		if user == nil {
+			http.Error(w, "invalid credentials", http.StatusUnauthorized)
+			return
+		}
+		if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password)); err != nil {
+			http.Error(w, "invalid credentials", http.StatusUnauthorized)
+			return
+		}
+		claims := models.AppClaims{
+			UserId: user.Id,
+			StandardClaims: jwt.StandardClaims{
+				ExpiresAt: time.Now().Add(2 * time.Hour * 24).Unix(),
+			},
+		}
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+		tokenString, err := token.SignedString([]byte(s.Config().JWTSecret))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-type", "application/json")
+		json.NewEncoder(w).Encode(LoginResponse{
+			Token: tokenString,
 		})
 	}
 }
