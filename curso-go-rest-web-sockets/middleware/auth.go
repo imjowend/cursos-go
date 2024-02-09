@@ -42,7 +42,7 @@ func CheckAuthMiddleware(s server.Server) func(h http.Handler) http.Handler {
 			tokenString := strings.TrimSpace(r.Header.Get("Authorization"))
 			// Analiza (Parsea) el tokenString con los claims que creamos en Models.
 			// Tambien realiza una funcion anonima donde retornara el JWTSecret del "s" (Server)
-			_, err := jwt.ParseWithClaims(tokenString, models.AppClaims{}, func(t *jwt.Token) (interface{}, error) {
+			_, err := jwt.ParseWithClaims(tokenString, &models.AppClaims{}, func(t *jwt.Token) (interface{}, error) {
 				return []byte(s.Config().JWTSecret), nil
 			})
 			// SI tiene error, el token esta mal y tira Unauthorized
