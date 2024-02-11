@@ -58,6 +58,41 @@ func (repository *PostgresRepository) GetUserById(ctx context.Context, id string
 	return &user, nil
 }
 
+func (repository *PostgresRepository) GetPostById(ctx context.Context, id string) (*models.Post, error) {
+	rows, err := repository.db.QueryContext(ctx, "SELECT id, post_content, created_at, user_id FROM posts WHERE id = $1", id)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		err = rows.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
+
+	var post = models.Post{}
+
+	for rows.Next() {
+		if err = rows.Scan(&post.Id, &post.PostContent, &post.CreatedAt, &post.UserId); err == nil {
+			return &post, nil
+		}
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return &post, nil
+}
+
+func (repository *PostgresRepository) UpdatePost(ctx context.Context, post *models.Post) error {
+	_, err := repository.db.ExecContext(ctx, "UPDATE posts SET  post_content = $1 WHERE id = $2 AND user_id = $3", post.PostContent, post.Id, post.UserId)
+	return err
+}
+
+func (repository *PostgresRepository) DeletePost(ctx context.Context, id string, userId string) error {
+	_, err := repository.db.ExecContext(ctx, "DELETE FROM posts WHERE id = $1 AND user_id = $2", id, userId)
+	return err
+}
+
 func (repository *PostgresRepository) Close() error {
 	return repository.db.Close()
 }
