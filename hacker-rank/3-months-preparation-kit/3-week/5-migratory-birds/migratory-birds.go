@@ -5,17 +5,23 @@ import "fmt"
 func main() {
 	arr := make([]int32, 0)
 	arr = append(arr, 1, 1, 2, 2, 3)
-	migratoryBirds(arr)
+	fmt.Println(migratoryBirds(arr))
+
 }
 
 func migratoryBirds(arr []int32) int32 {
 	// Write your code here
-	counterIds := make(map[int32]int32)
+	birdSeen := map[int32]int32{}
+	max := int32(-1)
+	maxBird := int32(-1)
 
-	for _, v := range arr {
-		counterIds[v]++
-		fmt.Println(counterIds[v])
+	for _, b := range arr {
+		birdSeen[b]++
+		if birdSeen[b] > max || (birdSeen[b] == max && b < maxBird) {
+			max = birdSeen[b]
+			maxBird = b
+		}
 	}
-	fmt.Println(counterIds)
-	return 0
+
+	return maxBird
 }
